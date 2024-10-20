@@ -1,0 +1,212 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prescription Recognizer</title>
+    <link rel="stylesheet" href="{% static 'recognition/style.css' %}">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Helvetica', Arial, sans-serif; /* Use Helvetica with fallbacks */
+            background-color: #f4f4f4;
+            padding-top: 80px; /* Leave space for the fixed header */
+        }
+
+        header {
+            background: none; /* Remove any background color */
+            padding: 20px; /* Add padding around the header */
+            text-align: center; /* Center the header content */
+        }
+
+        h1 {
+            font-size: 2rem; /* Increase header font size */
+            color: #007bff; /* Header color */
+            margin-bottom: 20px; /* Space below the header */
+            font-weight: bold; /* Use Helvetica Bold */
+        }
+
+        .container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            text-align: left; /* Left-align the content within the container */
+            width: 90%;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        h2 {
+            margin-bottom: 20px;
+            text-align: center; 
+            color: #333;
+            font-weight: bold; /* Use bold for subheadings */
+        }
+
+        h3 {
+            margin: 15px 0; /* Space above and below the heading */
+            color: #007bff; /* Color for headings */
+            font-weight: bold; /* Make headings bold */
+        }
+
+        p {
+            color: #333; /* Text color for paragraphs */
+            margin-bottom: 20px; /* Space below paragraphs */
+        }
+
+        /* Drag and drop area */
+        #drop-area {
+            border: 2px dashed #007bff; /* Dashed border for drop area */
+            padding: 20px; /* Padding inside the drop area */
+            text-align: center; /* Center the text */
+            margin-bottom: 30px; /* Increased space below drop area */
+            transition: background-color 0.3s, border-color 0.3s; /* Smooth transition for background and border color */
+        }
+
+        #drop-area:hover {
+            background-color: #e6f0ff; /* Light blue background on hover */
+            border-color: #0056b3; /* Darker blue border on hover */
+        }
+
+
+        /* Styles for buttons */
+        .button-group {
+        margin-top: 20px;
+        display: flex;
+        gap: 0px; /* Adjusted gap between the buttons */
+        justify-content: center;
+        width: 250px; /* Set a fixed width for the button group */
+        margin: 0 auto; /* Center the button group */
+        }
+
+        .button {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            text-decoration: none;
+            font-weight: bold; /* Make buttons bold */
+        }
+
+        .browse-button {
+            display: inline-block;
+            width: 200px; /* Match the width of the button group */
+            margin: 0 auto;
+            text-align: center;
+            background-color: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 20px; /* Add margin below the Browse Image button */
+        }
+        .submit-button {
+            background-color: #28a745; /* Green color for Submit button */
+        }
+
+        .button:hover {
+            background-color: #0056b3; /* Darker blue on hover */
+        }
+
+        .submit-button:hover {
+            background-color: #218838; /* Darker green on hover */
+        }
+
+        /* Preview image style */
+        .preview-img {
+            max-width: 100%; /* Responsive image */
+            margin-top: 20px; /* Space above the image */
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Prescription Recognizer</h1>
+    </header>
+
+    <div class="container">
+        <h2>Upload Image</h2>
+
+        <!-- Drag and drop area -->
+        <div id="drop-area" class="drop-area">
+            <p style="font-family: 'Helvetica', Arial, sans-serif; font-weight: bold;">Drag & Drop your image here</p> 
+            <!-- Form handling -->
+            <form method="POST" action="{% url 'upload_prescription' %}" enctype="multipart/form-data" onsubmit="return validateForm()">
+                {% csrf_token %}
+                <input type="file" id="fileElem" name="image" accept="image/*" onchange="handleFiles(this.files)">
+                <label class="button browse-button" for="fileElem">Browse Image</label>
+                <div class="button-group">
+                    <button type="button" id="clearBtn" class="button">Clear</button>
+                    <button type="submit" id="submitBtn" class="button submit-button">Submit</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Display selected image -->
+        <div id="preview"></div>
+    </div>
+
+    <script>
+        const fileElem = document.getElementById('fileElem');
+        const preview = document.getElementById('preview');
+
+        // Display the selected image
+        function handleFiles(files) {
+            if (files.length > 0) {
+                const file = files[0];
+
+                // Check if file is a valid image type
+                if (!file.type.startsWith('image/')) {
+                    alert('Please upload a valid image file.');
+                    fileElem.value = ''; // Clear the file input
+                    preview.innerHTML = ''; // Clear preview
+                    return;
+                }
+
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    preview.innerHTML = `<img src="${e.target.result}" alt="Uploaded Image" class="preview-img">`;
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        // Validate form before submission
+        function validateForm() {
+            const file = fileElem.files[0];
+            
+            if (!file) {
+                alert('Please upload a file.');
+                return false; // Prevent form submission
+            }
+
+            // Check if the uploaded file is an image
+            if (!file.type.startsWith('image/')) {
+                alert('Please upload a valid image file.');
+                return false; // Prevent form submission
+            }
+
+            return true; // Allow form submission
+        }
+
+        // Clear the selected image
+        function clearImage() {
+            fileElem.value = '';
+            preview.innerHTML = '';
+        }
+    </script>
+</body>
+</html>

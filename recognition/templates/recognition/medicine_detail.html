@@ -1,0 +1,115 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Medicine Details</title>
+    <link rel="stylesheet" href="{% static 'recognition/style.css' %}">
+    <style>
+        body {
+            font-family: 'Helvetica', sans-serif; /* Use Helvetica font */
+            font-weight: bold; /* Make font bold */
+            background-color: #f4f4f4; /* Light grey background */
+            color: #333; /* Dark text color */
+            margin: 0; /* Remove default margin */
+            padding: 0; /* Remove default padding */
+        }
+
+        .container {
+            background-color: white; /* White background for the container */
+            padding: 20px; /* Padding around the container */
+            border-radius: 8px; /* Rounded corners */
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+            width: 90%; /* Full width */
+            max-width: 600px; /* Max width */
+            margin: 40px auto; /* Center the container */
+        }
+
+        h2 {
+            text-align: left; /* Left align text */
+        }
+
+        h3 {
+            color: #007bff; /* Blue color for headings */
+            text-align: left; /* Left align headings */
+        }
+
+        p { 
+            margin: 10px 0; /* Space around paragraphs */
+            line-height: 1.6; /* Increase line height for better readability */
+            text-align: left; /* Left align text */
+            color: #333; /* Black color for paragraph text */
+            font-size: 15px;
+        }
+
+        strong {
+            color: #007bff; /* Highlighting the strong text */
+        }
+
+        .button-group {
+            margin-top: 20px; /* Space above buttons */
+        }
+
+        .button {
+            background-color: #007bff; /* Button background color */
+            color: white; /* Button text color */
+            padding: 10px 20px; /* Button padding */
+            border: none; /* No border */
+            border-radius: 5px; /* Rounded corners */
+            cursor: pointer; /* Pointer cursor on hover */
+            font-size: 16px; /* Button text size */
+            text-decoration: none; /* No underline */
+        }
+
+        .button:hover {
+            background-color: #0056b3; /* Darker shade on hover */
+        }
+
+        /* Hover effect for links */
+        a {
+            text-decoration: none; /* No underline */
+            color: #007bff; /* Default color */
+            transition: color 0.3s, transform 0.2s; /* Smooth transition for color and transform */
+        }
+
+        a:hover {
+            color: #004085; /* Darker blue color on hover */
+            transform: scale(1.05); /* Slightly increase size on hover */
+        }
+    </style>
+</head>
+<body>
+    <div>
+        <h1 style="text-align: center; margin: 40px 0 20px;">Medicine Details</h1> <!-- Increased top margin -->
+    </div>
+
+    <div class="container">
+        <h2>
+            <a href="https://www.google.com/search?q={{ medicine.product_name|urlencode }}" target="_blank">
+                {{ medicine.product_name }}
+            </a>
+        </h2>
+
+        <p>
+            <strong>Manufactured By:</strong>
+            <a href="https://www.google.com/search?q={{ medicine.product_manufactured|urlencode }}" target="_blank">
+                {{ medicine.product_manufactured }}
+            </a>
+        </p>
+
+        <p><strong>Salt Composition:</strong> {{ medicine.salt_composition }}</p>
+        <p><strong>Price:</strong> {% if medicine.product_price %} ₹{{ medicine.product_price }} {% else %} ? {% endif %}</p>
+
+        <h3>Description:</h3>
+        <p>{{ medicine.medicine_desc }}</p>
+
+        <h3>Side Effects:</h3>
+        <p>{{ medicine.side_effects }}</p>
+
+        <div class="button-group">
+            <a href="{% url 'upload_prescription' %}" class="button">Upload Another Prescription</a>
+        </div>
+    </div>
+</body>
+</html>

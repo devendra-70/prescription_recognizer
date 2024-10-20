@@ -1,0 +1,129 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Possible Medicine Matches</title>
+    <link rel="stylesheet" href="{% static 'recognition/style.css' %}">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding-top: 80px; /* Leave space for the fixed header */
+        }
+
+        h1 {
+            text-align: center; /* Center-aligns the header */
+            color: #007bff; /* Header color */
+            margin-bottom: 20px; /* Space below the header */
+        }
+
+        .container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            text-align: center; /* Center-aligns the content within the container */
+            width: 90%;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        h2 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        h3 {
+            margin: 15px 0; /* Space above and below the heading */
+            color: #555; /* Color for Possible Medicine Matches heading */
+            text-align: left; /* Align text to the left */
+        }
+
+        /* Styles for scrollable list */
+        .scrollable-list {
+            max-height: 200px; /* Set a maximum height for the list */
+            overflow-y: auto; /* Enable vertical scrolling */
+            margin-bottom: 20px; /* Space below the list */
+            border: 1px solid #ccc; /* Add border to the list */
+            border-radius: 5px; /* Rounded corners */
+            padding: 10px; /* Padding inside the list */
+            text-align: left; /* Align text to the left */
+        }
+
+        ul {
+            list-style-type: none; /* Remove bullets from list */
+            padding: 0; /* Remove padding */
+            margin: 0; /* Remove margin */
+        }
+
+        ul li {
+            margin: 10px 0; /* Space between list items */
+        }
+
+        ul li a {
+            color: #007bff; /* Link color */
+            text-decoration: none; /* Remove underline */
+            font-weight: bold; /* Make links bold */
+            transition: color 0.3s ease; /* Transition effect for link color */
+        }
+
+        ul li a:hover {
+            color: #0056b3; /* Change link color on hover */
+        }
+
+        .button-group {
+            margin-top: 20px;
+        }
+
+        .button {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            text-decoration: none;
+        }
+
+        .button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div>
+        <h1>Possible Medicine Matches</h1>
+    </div>
+
+    <div class="container">
+        <h2>Recognized Text: <em>{{ result }}</em></h2>
+
+        {% if medicines %}
+            <h3>Possible Matches:</h3>
+            <div class="scrollable-list">
+                <ul>
+                    {% for medicine in medicines %}
+                        <li><a href="{% url 'medicine_detail' medicine.id %}">{{ medicine.product_name }}</a></li>
+                    {% endfor %}
+                </ul>
+            </div>
+        {% else %}
+            <p>No medicine found in the database.</p>
+        {% endif %}
+
+        <div class="button-group">
+            <a href="{% url 'upload_prescription' %}" class="button">Upload Another Prescription</a>
+        </div>
+    </div>
+</body>
+</html>
