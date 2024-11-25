@@ -8,14 +8,35 @@ from PIL import Image
 from transformers import TrOCRProcessor, VisionEncoderDecoderModel
 import torch
 import re
+import json
 
 # Load TrOCR model and processor
 processor = TrOCRProcessor.from_pretrained("microsoft/trocr-base-handwritten")
 model = VisionEncoderDecoderModel.from_pretrained("microsoft/trocr-base-handwritten")
 
-def predict_image(image_path):
+def predict_image(image_path, crop_data=None):
     try:
         image = Image.open(image_path).convert("RGB")
+        
+        if crop_data:
+            # Get image dimensions
+            width, height = image.size
+            
+            # Calculate crop coordinates
+            crop_x = int(crop_data['x'] * width)
+            crop_y = int(crop_data['y'] * height)
+            crop_width = int(crop_data['width'] * width)
+            crop_height = int(crop_data['height'] * height)
+            
+            # Perform the crop
+            image = image.crop((
+                crop_x,
+                crop_y,
+                crop_x + crop_width,
+                crop_y + crop_height
+            ))
+
+        # Process the image (either cropped or full)
         pixel_values = processor(image, return_tensors="pt").pixel_values
         generated_ids = model.generate(pixel_values)
         prediction = processor.batch_decode(generated_ids, skip_special_tokens=True)[0]
@@ -30,7 +51,20 @@ def upload_prescription(request):
         if form.is_valid():
             prescription_image = form.save()
             uploaded_image_path = prescription_image.image.path
-            result = predict_image(uploaded_image_path)
+            
+            # Get crop data if it exists
+            crop_data = request.POST.get('crop_data')
+            if crop_data:
+                try:
+                    crop_data = json.loads(crop_data)
+                    # Validate crop data
+                    if not all(0 <= crop_data.get(key, 0) <= 1 for key in ['x', 'y', 'width', 'height']):
+                        crop_data = None
+                except (json.JSONDecodeError, AttributeError):
+                    crop_data = None
+            
+            # Process the image with crop data if available
+            result = predict_image(uploaded_image_path, crop_data)
 
             if result:
                 # Clean the result

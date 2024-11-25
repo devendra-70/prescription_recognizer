@@ -14,22 +14,22 @@
         }
 
         body {
-            font-family: 'Helvetica', Arial, sans-serif; /* Use Helvetica with fallbacks */
+            font-family: 'Helvetica', Arial, sans-serif;
             background-color: #f4f4f4;
-            padding-top: 80px; /* Leave space for the fixed header */
+            padding-top: 80px;
         }
 
         header {
-            background: none; /* Remove any background color */
-            padding: 20px; /* Add padding around the header */
-            text-align: center; /* Center the header content */
+            background: none;
+            padding: 20px;
+            text-align: center;
         }
 
         h1 {
-            font-size: 2rem; /* Increase header font size */
-            color: #007bff; /* Header color */
-            margin-bottom: 20px; /* Space below the header */
-            font-weight: bold; /* Use Helvetica Bold */
+            font-size: 2rem;
+            color: #007bff;
+            margin-bottom: 20px;
+            font-weight: bold;
         }
 
         .container {
@@ -37,7 +37,7 @@
             padding: 20px;
             border-radius: 8px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            text-align: left; /* Left-align the content within the container */
+            text-align: left;
             width: 90%;
             max-width: 600px;
             margin: 0 auto;
@@ -47,43 +47,27 @@
             margin-bottom: 20px;
             text-align: center; 
             color: #333;
-            font-weight: bold; /* Use bold for subheadings */
+            font-weight: bold;
         }
 
-        h3 {
-            margin: 15px 0; /* Space above and below the heading */
-            color: #007bff; /* Color for headings */
-            font-weight: bold; /* Make headings bold */
-        }
-
-        p {
-            color: #333; /* Text color for paragraphs */
-            margin-bottom: 20px; /* Space below paragraphs */
-        }
-
-        /* Drag and drop area */
         #drop-area {
-            border: 2px dashed #007bff; /* Dashed border for drop area */
-            padding: 20px; /* Padding inside the drop area */
-            text-align: center; /* Center the text */
-            margin-bottom: 30px; /* Increased space below drop area */
-            transition: background-color 0.3s, border-color 0.3s; /* Smooth transition for background and border color */
+            border: 2px dashed #007bff;
+            padding: 20px;
+            text-align: center;
+            margin-bottom: 30px;
+            transition: background-color 0.3s, border-color 0.3s;
         }
 
         #drop-area:hover {
-            background-color: #e6f0ff; /* Light blue background on hover */
-            border-color: #0056b3; /* Darker blue border on hover */
+            background-color: #e6f0ff;
+            border-color: #0056b3;
         }
 
-
-        /* Styles for buttons */
         .button-group {
-        margin-top: 20px;
-        display: flex;
-        gap: 0px; /* Adjusted gap between the buttons */
-        justify-content: center;
-        width: 250px; /* Set a fixed width for the button group */
-        margin: 0 auto; /* Center the button group */
+            margin-top: 20px;
+            display: flex;
+            gap: 10px;
+            justify-content: center;
         }
 
         .button {
@@ -95,14 +79,11 @@
             cursor: pointer;
             font-size: 16px;
             text-decoration: none;
-            font-weight: bold; /* Make buttons bold */
+            font-weight: bold;
         }
 
         .browse-button {
             display: inline-block;
-            width: 200px; /* Match the width of the button group */
-            margin: 0 auto;
-            text-align: center;
             background-color: #007bff;
             color: white;
             padding: 10px 20px;
@@ -111,24 +92,59 @@
             cursor: pointer;
             font-size: 16px;
             font-weight: bold;
-            margin-bottom: 20px; /* Add margin below the Browse Image button */
+            margin-bottom: 20px;
         }
+
         .submit-button {
-            background-color: #28a745; /* Green color for Submit button */
+            background-color: #28a745;
+        }
+
+        .clear-button {
+            background-color: #dc3545;
         }
 
         .button:hover {
-            background-color: #0056b3; /* Darker blue on hover */
+            background-color: #0056b3;
         }
 
         .submit-button:hover {
-            background-color: #218838; /* Darker green on hover */
+            background-color: #218838;
         }
 
-        /* Preview image style */
+        .clear-button:hover {
+            background-color: #c82333;
+        }
+
+        .preview-container {
+            position: relative;
+            margin-top: 20px;
+            max-width: 100%;
+            cursor: crosshair;
+            overflow: hidden;
+        }
+
         .preview-img {
-            max-width: 100%; /* Responsive image */
-            margin-top: 20px; /* Space above the image */
+            max-width: 100%;
+            display: block;
+        }
+
+        .selection-box {
+            position: absolute;
+            border: 2px solid #007bff;
+            background-color: rgba(0, 123, 255, 0.1);
+            pointer-events: none;
+            z-index: 1000;
+        }
+
+        input[type="file"] {
+            display: none;
+        }
+
+        .instructions {
+            margin-top: 10px;
+            color: #666;
+            font-size: 14px;
+            text-align: center;
         }
     </style>
 </head>
@@ -140,72 +156,169 @@
     <div class="container">
         <h2>Upload Image</h2>
 
-        <!-- Drag and drop area -->
         <div id="drop-area" class="drop-area">
-            <p style="font-family: 'Helvetica', Arial, sans-serif; font-weight: bold;">Drag & Drop your image here</p> 
-            <!-- Form handling -->
             <form method="POST" action="{% url 'upload_prescription' %}" enctype="multipart/form-data" onsubmit="return validateForm()">
                 {% csrf_token %}
                 <input type="file" id="fileElem" name="image" accept="image/*" onchange="handleFiles(this.files)">
+                <input type="hidden" id="cropData" name="crop_data">
                 <label class="button browse-button" for="fileElem">Browse Image</label>
+                <div class="instructions">
+                    After uploading, you can drag to select a specific area for processing.<br>
+                    Right-click to clear the selection.
+                </div>
                 <div class="button-group">
-                    <button type="button" id="clearBtn" class="button">Clear</button>
+                    <button type="button" id="clearBtn" class="button clear-button" onclick="clearImage()">Clear</button>
                     <button type="submit" id="submitBtn" class="button submit-button">Submit</button>
                 </div>
             </form>
         </div>
 
-        <!-- Display selected image -->
         <div id="preview"></div>
     </div>
 
     <script>
         const fileElem = document.getElementById('fileElem');
         const preview = document.getElementById('preview');
+        const cropDataInput = document.getElementById('cropData');
+        let isSelecting = false;
+        let startX, startY;
+        let selectionBox = null;
+        let previewContainer = null;
+        let originalImage = null;
 
-        // Display the selected image
         function handleFiles(files) {
             if (files.length > 0) {
                 const file = files[0];
 
-                // Check if file is a valid image type
                 if (!file.type.startsWith('image/')) {
                     alert('Please upload a valid image file.');
-                    fileElem.value = ''; // Clear the file input
-                    preview.innerHTML = ''; // Clear preview
+                    fileElem.value = '';
+                    preview.innerHTML = '';
                     return;
                 }
 
                 const reader = new FileReader();
                 reader.onload = function (e) {
-                    preview.innerHTML = `<img src="${e.target.result}" alt="Uploaded Image" class="preview-img">`;
+                    preview.innerHTML = `
+                        <div class="preview-container" id="previewContainer">
+                            <img src="${e.target.result}" alt="Uploaded Image" class="preview-img" id="previewImg">
+                        </div>
+                    `;
+                    
+                    previewContainer = document.getElementById('previewContainer');
+                    originalImage = document.getElementById('previewImg');
+                    
+                    setupImageSelection();
                 };
                 reader.readAsDataURL(file);
             }
         }
 
-        // Validate form before submission
+        function setupImageSelection() {
+            previewContainer.addEventListener('mousedown', startSelection);
+            previewContainer.addEventListener('mousemove', updateSelection);
+            previewContainer.addEventListener('mouseup', endSelection);
+            previewContainer.addEventListener('contextmenu', resetSelection);
+            previewContainer.addEventListener('mouseleave', endSelection);
+
+            // Prevent dragging the image
+            originalImage.addEventListener('dragstart', function(e) {
+                e.preventDefault();
+            });
+        }
+
+        function startSelection(e) {
+            if (e.button === 0) { // Left click only
+                e.preventDefault();
+                isSelecting = true;
+                
+                const rect = previewContainer.getBoundingClientRect();
+                startX = e.clientX - rect.left;
+                startY = e.clientY - rect.top;
+
+                if (selectionBox) {
+                    selectionBox.remove();
+                }
+                selectionBox = document.createElement('div');
+                selectionBox.className = 'selection-box';
+                selectionBox.style.left = startX + 'px';
+                selectionBox.style.top = startY + 'px';
+                previewContainer.appendChild(selectionBox);
+            }
+        }
+
+        function updateSelection(e) {
+            if (!isSelecting) return;
+
+            const rect = previewContainer.getBoundingClientRect();
+            let currentX = Math.max(0, Math.min(e.clientX - rect.left, rect.width));
+            let currentY = Math.max(0, Math.min(e.clientY - rect.top, rect.height));
+
+            const width = Math.abs(currentX - startX);
+            const height = Math.abs(currentY - startY);
+            const left = Math.min(startX, currentX);
+            const top = Math.min(startY, currentY);
+
+            selectionBox.style.width = width + 'px';
+            selectionBox.style.height = height + 'px';
+            selectionBox.style.left = left + 'px';
+            selectionBox.style.top = top + 'px';
+
+            updateCropData();
+        }
+
+        function endSelection() {
+            isSelecting = false;
+        }
+
+        function resetSelection(e) {
+            e.preventDefault();
+            if (selectionBox) {
+                selectionBox.remove();
+                selectionBox = null;
+                cropDataInput.value = '';
+            }
+        }
+
+        function updateCropData() {
+            if (!selectionBox || !previewContainer) {
+                cropDataInput.value = '';
+                return;
+            }
+
+            const containerRect = previewContainer.getBoundingClientRect();
+            const boxStyle = selectionBox.style;
+
+            const cropData = {
+                x: parseFloat(boxStyle.left) / containerRect.width,
+                y: parseFloat(boxStyle.top) / containerRect.height,
+                width: parseFloat(boxStyle.width) / containerRect.width,
+                height: parseFloat(boxStyle.height) / containerRect.height
+            };
+
+            cropDataInput.value = JSON.stringify(cropData);
+        }
+
         function validateForm() {
             const file = fileElem.files[0];
             
             if (!file) {
                 alert('Please upload a file.');
-                return false; // Prevent form submission
+                return false;
             }
 
-            // Check if the uploaded file is an image
             if (!file.type.startsWith('image/')) {
                 alert('Please upload a valid image file.');
-                return false; // Prevent form submission
+                return false;
             }
 
-            return true; // Allow form submission
+            return true;
         }
 
-        // Clear the selected image
         function clearImage() {
             fileElem.value = '';
             preview.innerHTML = '';
+            cropDataInput.value = '';
         }
     </script>
 </body>
